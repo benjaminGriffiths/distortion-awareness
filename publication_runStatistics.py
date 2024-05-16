@@ -4,7 +4,6 @@ import numpy as np
 from statsmodels.stats import anova
 import statsmodels.api as sm
 import scipy
-import platform
 
 # %% Prepare Workspace
 # define datasets
@@ -15,7 +14,6 @@ root_dir = ''
 
 # load data
 group_data = pd.read_csv(root_dir + 'group_data.csv')
-del root_dir
 
 # %% Get Descriptives
 # create descriptives dataframe
@@ -89,11 +87,12 @@ for dataset in range(n_datasets):
 
     # if experiment 6, check that retrieval confidence effect is present
     if dataset == 5:
+        print('\n\n--- Check Retrieval Effect in Exp. 6 ---')
         for epoch in ['perception', 'retrieval']:
             x = tmp_data.query('(confidence == 1) & (epoch == "{}")'.format(epoch)).prototypicality.to_numpy()
             y = tmp_data.query('(confidence == 0) & (epoch == "{}")'.format(epoch)).prototypicality.to_numpy()
             stats = scipy.stats.ttest_rel(x, y)
-            print('\n{} for Exp. 6: "Sure" > "Not Sure": t({})={}, p={:03.3f}'.format(epoch, stats.df, stats.statistic, stats.pvalue))
+            print('{} for Exp. 6: "Sure" > "Not Sure": t({})={}, p={:03.3f}'.format(epoch, stats.df, stats.statistic, stats.pvalue))
 
     # tidy
     del res, tmp_data, varis, dataset
@@ -159,10 +158,10 @@ del dfr
 # %% Report Confidence for Exp. 4
 # report summary statistics
 print('\n\n--------- Summary of Confidence (Exp. 4) ---------')
-print('Broad Kernels: mean = {:3.3f} (std: {:3.3f})'.format(group_data.query('manipulation=="kernel_broad"').groupby('pp').mean()['confidence'].mean(),
-                                                            group_data.query('manipulation=="kernel_broad"').groupby('pp').mean()['confidence'].std()))
-print('Narrow Kernels: mean = {:3.3f} (std: {:3.3f})'.format(group_data.query('manipulation=="kernel_narrow"').groupby('pp').mean()['confidence'].mean(),
-                                                             group_data.query('manipulation=="kernel_narrow"').groupby('pp').mean()['confidence'].std()))
+print('Broad Kernels: mean = {:3.3f} (std: {:3.3f})'.format(group_data.query('manipulation=="kernel_broad"').groupby('pp').mean(numeric_only=True)['confidence'].mean(),
+                                                            group_data.query('manipulation=="kernel_broad"').groupby('pp').mean(numeric_only=True)['confidence'].std()))
+print('Narrow Kernels: mean = {:3.3f} (std: {:3.3f})'.format(group_data.query('manipulation=="kernel_narrow"').groupby('pp').mean(numeric_only=True)['confidence'].mean(),
+                                                             group_data.query('manipulation=="kernel_narrow"').groupby('pp').mean(numeric_only=True)['confidence'].std()))
 
 # %% Run Impact of Controls on Confidence
 # cycle through datasets
@@ -199,10 +198,7 @@ for dataset in range(n_datasets):
     del dataset, vals, a, b, t, p, tmp_data
 
 # tidy
-del group_data, n_datasets
-
-# update user
-print('\n\ncomplete...')
+del n_datasets
 
 # %% Test if Prospective Confidence persists after controlling for perceptual distortion
 # loop through participants
@@ -228,8 +224,12 @@ for pp in np.unique(dat['pp']):
     beta.append(res.params)
 
 # run t-tests
+print('\n\n\n------ Controlling for Perceptual Distortion ------')
 beta = np.array(beta)
 stat = scipy.stats.ttest_1samp(beta[:, 1], popmean=0, nan_policy='omit')
 print('perceptual bias: t({})={:3.2f}, p={:3.3f}'.format(stat.df, stat.statistic, stat.pvalue))
 stat = scipy.stats.ttest_1samp(beta[:, 2], popmean=0, nan_policy='omit')
 print('confidence: t({})={:3.2f}, p={:3.3f}'.format(stat.df, stat.statistic, stat.pvalue))
+
+# update user
+print('\n\ncomplete...')

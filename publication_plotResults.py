@@ -4,8 +4,6 @@ import matplotlib.font_manager as font_manager
 from matplotlib import pyplot as plt
 import seaborn as sns
 import scipy
-import platform
-
 import svgutils as sg
 import matplotlib.lines as mlines
 import matplotlib as mpl
