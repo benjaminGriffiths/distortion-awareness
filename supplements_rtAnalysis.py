@@ -5,7 +5,6 @@ from matplotlib import pyplot as plt
 from sklearn import cluster
 from sklearn import metrics
 import seaborn as sns
-from statsmodels.stats import anova
 import scipy
 import math
 import platform
@@ -194,3 +193,5 @@ for dataset in [0, 1]:
 plt.show()
 fig.savefig('{}/figures/suppfig1.svg'.format(root_dir))
 
+# save data
+dfr.to_csv('{}/supplementary_rt_data.csv'.format(root_dir))
